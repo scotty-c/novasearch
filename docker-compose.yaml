@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  novasearch:
+    image: novasearch:latest  # Assuming you built the image locally
+    build:
+      context: .
+      dockerfile: Dockerfile  # Specify the Dockerfile to build the image
+    depends_on:
+      - redis
+    environment:
+      - REDIS_ADDR=redis:6379  # Redis address to use in the app
+      - AWS_REGION=us-east-1   # Specify the AWS region
+    ports:
+      - "8080:8080"            # Expose NovaSearch API on port 8080
+    networks:
+      - novasearch-network
+
+  redis:
+    image: redis:alpine        # Use the official Redis image
+    ports:
+      - "6379:6379"            # Expose Redis on port 6379
+    networks:
+      - novasearch-network
+    volumes:
+      - redis-data:/data       # Persist Redis data across restarts
+
+networks:
+  novasearch-network:
+    driver: bridge
+
+volumes:
+  redis-data:
